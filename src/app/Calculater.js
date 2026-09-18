@@ -1,20 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import RangeCom from "./RangeCom";
-import CalcRate from "./CalcRate";
-import CalcTime from "./calcTime";
 import BarGraph from "./BarGraph";
+import RangeInput from "./RangeInput";
 
 export default function Calculater() {
-    const [values, setValues] = useState([100000]);
-    const [valuesRate, setValuesRate] = useState([7]);
-    const [valuesTime, setValuesTime] = useState([5]);
+    const [principal, setPrincipal] = useState([10000]);
+    const [rate, setRate] = useState([5]);
+    const [timeV, setTimeV] = useState([2]);
 
     const [interest, setInterest] = useState(0);
     const [total, setTotal] = useState(0);
-
-    const [time, setTime] = useState([]);
 
     const [chartData, setChartData] = useState({
         labels: [],
@@ -29,29 +25,29 @@ export default function Calculater() {
         ],
     });
 
-    const funds = (value, rate, timePeriod) => {
-        const principal = Number(value[0]);
+
+    const funds = () => {
+        const principalValue = Number(principal[0]);
         const interestRate = Number(rate[0]);
-        const years = Number(timePeriod[0]);
+        const years = Number(timeV[0]);
 
         if (
-            principal > 0 &&
+            principalValue > 0 &&
             interestRate > 0 &&
             years > 0
         ) {
 
             const siValue =
-                (principal * interestRate * years) / 100;
+                (principalValue * interestRate * years) / 100;
 
-
-            const totalValue = principal + siValue;
+            const totalValue =
+                principalValue + siValue;
 
             setInterest(Number(siValue.toFixed(2)));
             setTotal(Number(totalValue.toFixed(2)));
 
-
             createGraph(
-                principal,
+                principalValue,
                 interestRate,
                 years
             );
@@ -59,28 +55,24 @@ export default function Calculater() {
     };
 
 
-    const createGraph = (principal, rate, years) => {
+    const createGraph = (principalValue, interestRate, years) => {
         const labels = [];
         const amounts = [];
 
         for (let year = 1; year <= years; year++) {
-
             const yearlyInterest =
-                (principal * rate * year) / 100;
-
+                (principalValue * interestRate * year) / 100;
 
             const yearlyTotal =
-                principal + yearlyInterest;
+                principalValue + yearlyInterest;
 
-            labels.push(year);
+            labels.push(`Year ${year}`);
 
             amounts.push(
                 Number(yearlyTotal.toFixed(2))
             );
         }
 
-        setTime(labels);
-
         setChartData({
             labels: labels,
 
@@ -88,51 +80,8 @@ export default function Calculater() {
                 {
                     label: "Amount",
                     data: amounts,
-
                     backgroundColor: "#dfc6af",
                     borderColor: "#dfc6af",
-
-                    borderWidth: 1,
-                },
-            ],
-        });
-    };
-
-
-
-    const timeCal = (le) => {
-        const principal = Number(values[0]);
-        const rate = Number(valuesRate[0]);
-
-        const labels = [];
-        const amounts = [];
-
-        for (let year = 1; year <= le; year++) {
-            const simpleInterest =
-                (principal * rate * year) / 100;
-
-            const totalAmount =
-                principal + simpleInterest;
-
-            labels.push(year);
-            amounts.push(
-                Number(totalAmount.toFixed(2))
-            );
-        }
-
-        setTime(labels);
-
-        setChartData({
-            labels: labels,
-
-            datasets: [
-                {
-                    label: "Amount",
-                    data: amounts,
-
-                    backgroundColor: "#dfc6af",
-                    borderColor: "#dfc6af",
-
                     borderWidth: 1,
                 },
             ],
@@ -144,8 +93,7 @@ export default function Calculater() {
 
             <div className="flex justify-between gap-24 border border-gray-300 rounded-lg p-6 m-4">
 
-
-
+                {/* LEFT SIDE */}
                 <div className="w-1/2">
 
                     <h1 className="text-2xl font-bold text-slate-800 tracking-wide sm:text-2xl mb-10">
@@ -167,21 +115,23 @@ export default function Calculater() {
                             </h2>
 
                             <span className="rounded-full bg-gray-100 px-5 py-2">
-                                ₹{Number(values[0]).toLocaleString("en-IN")}
+                                ₹
+                                {Number(principal[0]).toLocaleString(
+                                    "en-IN"
+                                )}
                             </span>
 
                         </div>
 
-                        <RangeCom
-                            min={10000}
-                            max={5000000}
+                        <RangeInput
+                            min={1000}
+                            max={100000}
                             step={1000}
-                            values={values}
-                            setValues={setValues}
+                            values={principal}
+                            setValues={setPrincipal}
                         />
 
                     </div>
-
 
 
                     <div className="mb-10">
@@ -193,56 +143,20 @@ export default function Calculater() {
                             </h2>
 
                             <span className="rounded-full bg-gray-100 px-5 py-2">
-                                {valuesRate[0]}%
+                                {rate[0]}%
                             </span>
 
                         </div>
 
-                        <CalcRate
-                            min={5}
-                            max={30}
+                        <RangeInput
+                            min={1}
+                            max={20}
                             step={1}
-                            values={valuesRate}
-                            setValues={setValuesRate}
+                            values={rate}
+                            setValues={setRate}
                         />
 
                     </div>
-
-
-
-                    <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-10 pb-4 border-b border-slate-100">
-
-                        <h2 className="text-xl font-semibold text-slate-700">
-                            Interest Payout
-                        </h2>
-
-                        <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-xl">
-
-                            <button
-                                onClick={() => timeCal(5)}
-                                className="px-4 py-2 text-sm font-medium text-slate-600 rounded-lg hover:bg-white hover:text-slate-950 hover:shadow-sm transition-all"
-                            >
-                                Quarterly
-                            </button>
-
-                            <button
-                                onClick={() => timeCal(6)}
-                                className="px-4 py-2 text-sm font-medium text-slate-600 rounded-lg hover:bg-white hover:text-slate-950 hover:shadow-sm transition-all"
-                            >
-                                Half-Yearly
-                            </button>
-
-                            <button
-                                onClick={() => timeCal(12)}
-                                className="px-4 py-2 text-sm font-medium text-slate-600 rounded-lg hover:bg-white hover:text-slate-950 hover:shadow-sm transition-all"
-                            >
-                                Yearly
-                            </button>
-
-                        </div>
-
-                    </div>
-
 
 
                     <div className="mb-10">
@@ -254,38 +168,29 @@ export default function Calculater() {
                             </h2>
 
                             <span className="rounded-full bg-gray-100 px-5 py-2">
-                                {valuesTime[0]}
+                                {timeV[0]} Years
                             </span>
 
                         </div>
 
-                        <CalcTime
+                        <RangeInput
                             min={1}
-                            max={50}
+                            max={10}
                             step={1}
-                            values={valuesTime}
-                            setValues={setValuesTime}
+                            values={timeV}
+                            setValues={setTimeV}
                         />
 
                     </div>
 
 
-
                     <button
                         className="bg-[#b28a6a] hover:bg-[#9c7658] text-white font-bold py-3 px-6 rounded-full mb-10"
                         type="button"
-                        onClick={() =>
-                            funds(
-                                values,
-                                valuesRate,
-                                valuesTime
-                            )
-                        }
+                        onClick={funds}
                     >
                         Calculate
                     </button>
-
-
 
                     {total > 0 && (
                         <div>
@@ -306,10 +211,7 @@ export default function Calculater() {
                 </div>
 
 
-
                 <div className="w-1/2 bg-[#d3b79d] rounded-xl p-6">
-
-
 
                     <div className="grid grid-cols-2 gap-8 mb-6">
 
@@ -321,7 +223,9 @@ export default function Calculater() {
 
                             <h2 className="text-2xl font-bold text-white mt-1">
                                 ₹
-                                {(total || 0).toLocaleString("en-IN")}
+                                {(total || 0).toLocaleString(
+                                    "en-IN"
+                                )}
                             </h2>
 
                         </div>
@@ -334,7 +238,9 @@ export default function Calculater() {
 
                             <h2 className="text-2xl font-bold text-white mt-1">
                                 ₹
-                                {(interest || 0).toLocaleString("en-IN")}
+                                {(interest || 0).toLocaleString(
+                                    "en-IN"
+                                )}
                             </h2>
 
                         </div>
@@ -342,13 +248,12 @@ export default function Calculater() {
                     </div>
 
 
-
-
                     <div className="bg-white rounded-2xl p-5">
 
                         <BarGraph Bardata={chartData} />
 
                     </div>
+
                 </div>
 
             </div>
